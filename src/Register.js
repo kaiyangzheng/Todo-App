@@ -1,74 +1,80 @@
 import React, { useState, useEffect } from 'react';
 
-const Login = ({ setToken, setName, setIsLogin }) => {
+const Register = (props) => {
+    const { setIsLogin } = props;
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
+    const [confirmPass, setConfirmPass] = useState('');
     const [resResult, setResResult] = useState('');
     const [alert, setAlert] = useState({ 'msg': '', 'type': '' });
     const [showAlert, setShowAlert] = useState(false);
-    const handleLogin = () => {
+
+    const handleRegister = async () => {
         let myHeaders = new Headers();
         myHeaders.append("Content-Type", "application/json");
-        let encoded = window.btoa(`${username}:${password}`)
-        myHeaders.append("Authorization", "Basic " + encoded);
+        let raw = JSON.stringify({
+            "name": username,
+            "password": password
+        });
         let requestOptions = {
-            method: 'GET',
+            method: "POST",
             headers: myHeaders,
+            body: raw,
             redirect: 'follow'
-        }
-        fetch('https://todo-api-kz.herokuapp.com/login', requestOptions)
-            .then(response => {
-                if (response.ok) return response.json();
-            })
-            .then(json => {
-                setResResult(json);
-            })
-    }
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        handleLogin();
+        };
+
+        fetch("https://todo-api-kz.herokuapp.com/register", requestOptions)
+            .then(response => response.text())
+            .then(result => setResResult(JSON.parse(result)));
+
     }
 
     useEffect(() => {
-        if (resResult) {
-            setAlert({ ...alert, msg: 'Success... Redirecting To Dashboard', type: 'alert-success' })
+        if (Object.keys(resResult)[0] === "message") {
+            setAlert({ ...alert, msg: 'Success... Redirecting To Login Page', type: 'alert-success' })
             setShowAlert(true);
             let timer1 = setTimeout(() => {
                 setShowAlert(false);
-                setToken(resResult['token']);
-                setName(resResult['name']);
-            }, 2000)
+                setIsLogin(true);
+            }, 2000);
             return () => {
                 clearTimeout(timer1);
             }
-        } else {
-            setAlert({ ...alert, msg: `Error: Invalid Login`, type: 'alert-danger' })
+        } else if (Object.keys(resResult)[0] === "error") {
+            setAlert({ ...alert, msg: `Error: ${resResult['error']}`, type: 'alert-danger' })
             setShowAlert(true);
             let timer2 = setTimeout(() => {
                 setShowAlert(false);
-            })
+            }, 2000);
             return () => {
                 clearTimeout(timer2);
             }
         }
     }, [resResult])
 
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        handleRegister();
+
+    }
+
     return <>
         {showAlert && <p className={`alert ${alert.type}`}>{alert.msg}</p>}
-        <form action="" className="login-form" onSubmit={handleSubmit}>
-            <h3>Login</h3>
+        <form className="login-form" style={{ height: "620px" }} onSubmit={handleSubmit}>
+            <h3>Sign Up</h3>
             <label htmlFor="username">Username</label>
             <input type="text" placeholder="Username" id="username" name="username" value={username} onChange={(e) => setUsername(e.target.value)} />
-
             <label htmlFor="password">Password</label>
             <input type="password" placeholder="Password" id="password" name="password" value={password} onChange={(e) => setPassword(e.target.value)} />
-            <button>Log In</button>
+            <label htmlFor="confirm-password">Confirm Password</label>
+            <input type="password" placeholder="Confirm Password" id="confirm-password" name="confirm-password" value={confirmPass} onChange={(e) => setConfirmPass(e.target.value)} />
+            <button>Sign Up</button>
             <div style={{ textAlign: "center", marginTop: "10px" }}>
                 or
-                <p><a onClick={() => setIsLogin(false)}>Sign up</a></p>
+                <p><a onClick={() => setIsLogin(true)}>Log In</a></p>
             </div>
         </form>
     </>
 }
 
-export default Login;
+export default Register;

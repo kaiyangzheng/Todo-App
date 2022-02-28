@@ -306,7 +306,7 @@ Grocery List
 }
 
 .login-form{
-	height: 450px;
+	  height: 500px;
     width: 400px;
     background-color: white;
     position: absolute;
@@ -381,4 +381,47 @@ Grocery List
 
 .grocery-list{
 	margin-top: 1rem;
+}
+
+.login-form a:after{
+  content: '';
+  width: 0px;
+  height: 1px;
+  display: block;
+  background: black;
+  transition: 300ms;
+}
+
+.login-form a:hover{
+  cursor:pointer;
+}
+
+.login-form a:hover::after{
+  width: 100%;
+
+}
+
+.login-form a{
+    display: inline-block;
+    margin-top: 0.3rem;
+}
+
+.alert {
+  margin-bottom: 1rem;
+  height: 1.25rem;
+  display: grid;
+  align-items: center;
+  text-align: center;
+  font-size: 0.7rem;
+  border-radius: 0.25rem;
+  letter-spacing: var(--spacing);
+  text-transform: capitalize;
+}
+.alert-danger {
+  color: #721c24;
+  background: #f8d7da;
+}
+.alert-success {
+  color: #155724;
+  background: #d4edda;
 }

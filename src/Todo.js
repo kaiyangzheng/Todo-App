@@ -19,7 +19,7 @@ const Todo = (props) => {
             redirect: 'follow'
         }
         setIsLoading(true);
-        const response = await fetch('http://localhost:5000/todo', requestOptions)
+        const response = await fetch('https://todo-api-kz.herokuapp.com/todo', requestOptions)
         const responseTodos = await response.json();
         setIsLoading(false)
 
@@ -41,7 +41,7 @@ const Todo = (props) => {
             redirect: 'follow'
         }
         setIsLoading(true);
-        const response = await fetch('http://localhost:5000/todo', requestOptions)
+        const response = await fetch('https://todo-api-kz.herokuapp.com/todo', requestOptions)
             .then(response => response.text)
             .then(result => console.log(result))
             .catch(error => console.log('error', error))
@@ -58,11 +58,10 @@ const Todo = (props) => {
             redirect: 'follow'
         };
 
-        const response = await fetch(`http://localhost:5000/todo/${id}`, requestOptions)
+        const response = await fetch(`https://todo-api-kz.herokuapp.com/todo/${id}`, requestOptions)
             .then(response => response.text)
             .then(result => console.log(result))
             .catch(error => console.log('error', error))
-        getTodos();
     }
 
     const deleteTodo = async (id) => {
@@ -75,21 +74,34 @@ const Todo = (props) => {
             redirect: 'follow'
         };
 
-        const response = await fetch(`http://localhost:5000/todo/${id}`, requestOptions)
+        const response = await fetch(`https://todo-api-kz.herokuapp.com/todo/${id}`, requestOptions)
             .then(response => response.text)
             .then(result => console.log(result))
             .catch(error => console.log('error', error))
-        getTodos();
     }
 
 
-    const removeTodo = (id) => {
-        deleteTodo(id);
+    const removeTodo = async (id) => {
+        await deleteTodo(id);
         getTodos();
     }
 
-    const completeTodo = (id) => {
-        putTodo(id);
+    const completeTodo = async (id) => {
+        await putTodo(id);
+        getTodos();
+    }
+
+    const removeAllTodos = () => {
+        for (let i = 0; i < todos.length; i++) {
+            if (!todos[i].complete) {
+                removeTodo(todos[i].id);
+            }
+
+        }
+    }
+
+    const handleRemoveAllTodos = async () => {
+        await removeAllTodos();
         getTodos();
     }
 
@@ -114,7 +126,7 @@ const Todo = (props) => {
                     <button className="submit-btn" type="submit">Submit</button>
                 </div>
                 <TodoList todos={todos} removeTodo={removeTodo} completeTodo={completeTodo} />
-                {todos.filter((todo) => { return todo.complete != true }).length > 0 && <button className="clear-btn">clear items</button>}
+                {todos.filter((todo) => { return todo.complete != true }).length > 0 && <button className="clear-btn" onClick={handleRemoveAllTodos}>clear items</button>}
                 <ClipLoader color={"#1ad9d6"} loading={isLoading} css={"display: block; margin: 0 auto;"} />
             </form>
         </section>
