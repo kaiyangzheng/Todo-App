@@ -30,15 +30,24 @@ const Register = (props) => {
     }
 
     useEffect(() => {
-        if (Object.keys(resResult)[0] === "message") {
-            setAlert({ ...alert, msg: 'Success... Redirecting To Login Page', type: 'alert-success' })
+        if (password !== confirmPass) {
+            setAlert({ ...alert, msg: 'Error: Passwords must match', type: 'alert-danger' })
             setShowAlert(true);
             let timer1 = setTimeout(() => {
+                setShowAlert(false);
+            }, 2000);
+            return () => {
+                clearTimeout(timer1);
+            }
+        } else if (Object.keys(resResult)[0] === "message") {
+            setAlert({ ...alert, msg: 'Success... Redirecting To Login Page', type: 'alert-success' })
+            setShowAlert(true);
+            let timer2 = setTimeout(() => {
                 setShowAlert(false);
                 setIsLogin(true);
             }, 2000);
             return () => {
-                clearTimeout(timer1);
+                clearTimeout(timer2);
             }
         } else if (Object.keys(resResult)[0] === "error") {
             setAlert({ ...alert, msg: `Error: ${resResult['error']}`, type: 'alert-danger' })
@@ -55,7 +64,6 @@ const Register = (props) => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         handleRegister();
-
     }
 
     return <>
