@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import ClipLoader from "react-spinners/ClipLoader";
 
 const Login = ({ setToken, setName, setIsLogin }) => {
     const [username, setUsername] = useState('');
@@ -23,6 +24,17 @@ const Login = ({ setToken, setName, setIsLogin }) => {
             .then(json => {
                 setResResult(json);
             })
+        console.log(resResult);
+        if (resResult === undefined) {
+            setAlert({ ...alert, msg: 'Error: Invalid Login', type: 'alert-danger' })
+            setShowAlert(true);
+            let timer = setTimeout(() => {
+                setShowAlert(false);
+            }, 1000)
+            return () => {
+                clearTimeout(timer);
+            }
+        }
     }
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -37,18 +49,9 @@ const Login = ({ setToken, setName, setIsLogin }) => {
                 setShowAlert(false);
                 setToken(resResult['token']);
                 setName(resResult['name']);
-            }, 2000)
+            }, 1000)
             return () => {
                 clearTimeout(timer1);
-            }
-        } else {
-            setAlert({ ...alert, msg: `Error: Invalid Login`, type: 'alert-danger' })
-            setShowAlert(true);
-            let timer2 = setTimeout(() => {
-                setShowAlert(false);
-            })
-            return () => {
-                clearTimeout(timer2);
             }
         }
     }, [resResult])
@@ -62,11 +65,12 @@ const Login = ({ setToken, setName, setIsLogin }) => {
 
             <label htmlFor="password">Password</label>
             <input type="password" placeholder="Password" id="password" name="password" value={password} onChange={(e) => setPassword(e.target.value)} />
-            <button>Log In</button>
-            <div style={{ textAlign: "center", marginTop: "10px" }}>
+            {!showAlert && <button>Log In</button>}
+            {!showAlert && <div style={{ textAlign: "center", marginTop: "10px" }}>
                 or
                 <p><a onClick={() => setIsLogin(false)}>Sign up</a></p>
-            </div>
+            </div>}
+            <ClipLoader color={"#1ad9d6"} loading={showAlert} css={"display: block; margin: 0 auto; margin-top: 3rem;"} />
         </form>
     </>
 }

@@ -35,7 +35,7 @@ const Register = (props) => {
             setShowAlert(true);
             let timer1 = setTimeout(() => {
                 setShowAlert(false);
-            }, 2000);
+            }, 1000);
             return () => {
                 clearTimeout(timer1);
             }
@@ -45,7 +45,7 @@ const Register = (props) => {
             let timer2 = setTimeout(() => {
                 setShowAlert(false);
                 setIsLogin(true);
-            }, 2000);
+            }, 1000);
             return () => {
                 clearTimeout(timer2);
             }
@@ -54,7 +54,7 @@ const Register = (props) => {
             setShowAlert(true);
             let timer2 = setTimeout(() => {
                 setShowAlert(false);
-            }, 2000);
+            }, 1000);
             return () => {
                 clearTimeout(timer2);
             }
