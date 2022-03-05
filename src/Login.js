@@ -24,7 +24,6 @@ const Login = ({ setToken, setName, setIsLogin }) => {
             .then(json => {
                 setResResult(json);
             })
-        console.log(resResult);
         if (resResult === undefined) {
             setAlert({ ...alert, msg: 'Error: Invalid Login', type: 'alert-danger' })
             setShowAlert(true);

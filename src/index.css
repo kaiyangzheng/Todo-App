@@ -201,6 +201,51 @@ Grocery List
   display: flex;
   justify-content: center;
 }
+
+.date-form-control{
+  display: flex;
+  justify-content: center;
+  margin-top: 1rem;
+}
+
+.date-input{
+  background-color: var(--clr-grey-10);
+  border-top: none;
+  border-bottom: none;
+  border-width: 0.2px;
+}
+
+.center {
+    text-align: center;
+    }
+
+input[type=date]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+}
+
+
+
+input[type=date]::-webkit-calendar-picker-indicator {
+    -webkit-appearance: none;
+}
+
+input[type=time]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+}
+
+
+
+input[type=time]::-webkit-calendar-picker-indicator {
+    -webkit-appearance: none;
+}
+
+.time-input{
+  border: none;
+  background-color: var(--clr-grey-10);
+  border-top-right-radius: var(--radius);
+  border-bottom-right-radius: var(--radius);
+}
+
 .grocery {
   padding: 0.25rem;
   padding-left: 1rem;
@@ -219,18 +264,18 @@ Grocery List
 .submit-btn {
   background: var(--clr-primary-8);
   border-color: transparent;
-  flex: 0 0 5rem;
-  display: grid;
+  /*flex: 0 0 5rem;*/
+  /*display: grid;*/
   align-items: center;
-  padding: 0.25rem;
+  padding: 0.25rem 1.5rem;
   text-transform: capitalize;
   letter-spacing: 2px;
-  border-top-right-radius: var(--radius);
-  border-bottom-right-radius: var(--radius);
+  border-radius: var(--radius);
   cursor: pointer;
   content: var(--clr-primary-5);
   transition: var(--transition);
   font-size: 0.85rem;
+  width: 10vw;
 }
 .submit-btn:hover {
   background: var(--clr-primary-5);
@@ -250,7 +295,10 @@ Grocery List
   padding: 0.25rem 1rem;
   border-radius: var(--radius);
   text-transform: capitalize;
+  flex-flow: row wrap;
+  
 }
+
 .grocery-item:hover {
   color: var(--clr-grey-5);
   background: var(--clr-grey-10);
@@ -424,4 +472,16 @@ Grocery List
 .alert-success {
   color: #155724;
   background: #d4edda;
+}
+
+.item{
+  display:flex;
+  margin-top: 1rem;
+}
+
+break{
+  flex-basis: 100%;
+  width: 0px; 
+  height: 0px; 
+  overflow: hidden;
 }

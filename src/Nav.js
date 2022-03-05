@@ -235,7 +235,7 @@ export default function PrimarySearchAppBar({ logout, name }) {
                             <Avatar
                                 style={{ backgroundColor: randomColor() }}
                             >
-                                {name.charAt(0)}
+                                {name.toUpperCase().charAt(0)}
                             </Avatar>
                         </IconButton>
 

@@ -6,8 +6,17 @@ import ClipLoader from "react-spinners/ClipLoader";
 const Todo = (props) => {
     const [todos, setTodos] = useState([]);
     const [formValue, setFormValue] = useState('');
+    const [dateValue, setDateValue] = useState('');
+    const [timeValue, setTimeValue] = useState('');
     const [isLoading, setIsLoading] = useState(true);
+    const [showAlert, setShowAlert] = useState(false);
+    const [alert, setAlert] = useState({ 'msg': '', 'type': '' })
+
     const { token } = props;
+
+    function convertTZ(date, tzString) {
+        return new Date((typeof date === "string" ? new Date(date) : date).toLocaleString("en-US", { timeZone: tzString }));
+    }
 
     const getTodos = async () => {
         let myHeaders = new Headers();
@@ -22,7 +31,7 @@ const Todo = (props) => {
         const response = await fetch('https://todo-api-kz.herokuapp.com/todo', requestOptions)
         const responseTodos = await response.json();
         setIsLoading(false)
-
+        console.log(responseTodos['todos'])
         setTodos(responseTodos['todos']);
     }
 
@@ -30,8 +39,23 @@ const Todo = (props) => {
         let myHeaders = new Headers()
         myHeaders.append('Content-Type', 'application/json');
         myHeaders.append('x-access-token', token);
+        let formattedDateValue = dateValue.split('-')
+        formattedDateValue = formattedDateValue[1] + '-' + formattedDateValue[2] + '-' + formattedDateValue[0];
+        let formattedDate = new Date(formattedDateValue);
+        console.log(formattedDate);
+        formattedDate = formattedDate.toDateString().slice(4, formattedDate.length);
+        let hour = parseInt(timeValue.slice(0, 2));
+        let minutes = timeValue.slice(3, 5);
+        let AMPM = 'AM'
+        if (hour > 12) {
+            hour = hour - 12;
+            AMPM = 'PM';
+        }
+        let formattedTime = hour + ':' + minutes + AMPM;
+        let formattedDateTime = formattedDate + '  ' + formattedTime;
         let raw = JSON.stringify({
-            "text": formValue
+            "text": formValue,
+            "due_date": formattedDateTime
         });
 
         let requestOptions = {
@@ -107,11 +131,32 @@ const Todo = (props) => {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        if (formValue) {
+        if (!formValue) {
+            setShowAlert(true);
+            setAlert({ ...alert, 'msg': 'Error: Invalid Input', 'type': 'alert-danger' })
+        } else if (!dateValue || !timeValue) {
+            setShowAlert(true);
+            setAlert({ ...alert, 'msg': 'Error: Invalid Date or Time', 'type': 'alert-danger' })
+        } else {
             postTodos();
+            setShowAlert(true);
+            setAlert({ ...alert, 'msg': 'Added Todo', 'type': 'alert-success' })
+            setFormValue('');
+            setDateValue('');
+            setTimeValue('');
         }
-        setFormValue('');
+
     }
+
+    useEffect(() => {
+        let timer1 = setTimeout(() => {
+            setShowAlert(false);
+        }, 3000)
+        return () => {
+            clearTimeout(timer1);
+        }
+
+    }, [alert])
 
     useEffect(() => {
         getTodos();
@@ -120,13 +165,18 @@ const Todo = (props) => {
     return <>
         <section className="section-center">
             <form action="" className="grocery-form" onSubmit={handleSubmit}>
+                {showAlert && <p className={`alert ${alert.type}`}>{alert.msg}</p>}
                 <h3>Todo List</h3>
                 <div className="form-control">
                     <input type="text" className="grocery" placeholder="e.g. cry" value={formValue} onChange={(e) => setFormValue(e.target.value)} />
-                    <button className="submit-btn" type="submit">Submit</button>
+                    <input type="date" className="date-input center" name="date-form" id="date-form" value={dateValue} onChange={(e) => setDateValue(e.target.value)}></input>
+                    <input type="time" className="time-input center" value={timeValue} onChange={(e) => setTimeValue(e.target.value)}></input>
+                </div>
+                <div className="date-form-control">
+                    <button className="submit-btn" type="submit">Add Item</button>
                 </div>
                 <TodoList todos={todos} removeTodo={removeTodo} completeTodo={completeTodo} />
-                {todos.filter((todo) => { return todo.complete != true }).length > 0 && <button className="clear-btn" onClick={handleRemoveAllTodos}>clear items</button>}
+                {todos && todos.filter((todo) => { return todo.complete != true }).length > 0 && <button className="clear-btn" onClick={handleRemoveAllTodos}>clear items</button>}
                 <ClipLoader color={"#1ad9d6"} loading={isLoading} css={"display: block; margin: 0 auto;"} />
             </form>
         </section>

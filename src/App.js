@@ -32,7 +32,7 @@ function App() {
   return <>
     {token && <NavBar logout={logout} name={name}></NavBar>}
     {!token && isLogin && <Login setToken={setToken} setName={setName} setIsLogin={setIsLogin} />}
-    {!token && !isLogin && <Register setIsLogin={setIsLogin} />}
+    {!token && !isLogin && <Register setToken={setToken} setIsLogin={setIsLogin} setName={setName} />}
     {token && <Todo token={token} />}
   </>
 }
