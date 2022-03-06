@@ -8,6 +8,7 @@ import NavBar from './Nav';
 
 
 function App() {
+  const [upcoming, setUpcoming] = useState([]);
   const [token, setToken] = useState(() => {
     const saved = localStorage.getItem("token");
     return saved || "";
@@ -30,10 +31,10 @@ function App() {
   }
 
   return <>
-    {token && <NavBar logout={logout} name={name}></NavBar>}
+    {token && <NavBar logout={logout} name={name} upcoming={upcoming}></NavBar>}
     {!token && isLogin && <Login setToken={setToken} setName={setName} setIsLogin={setIsLogin} />}
     {!token && !isLogin && <Register setToken={setToken} setIsLogin={setIsLogin} setName={setName} />}
-    {token && <Todo token={token} />}
+    {token && <Todo token={token} setUpcoming={setUpcoming} />}
   </>
 }
 export default App;

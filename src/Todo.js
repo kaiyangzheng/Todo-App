@@ -7,16 +7,13 @@ const Todo = (props) => {
     const [todos, setTodos] = useState([]);
     const [formValue, setFormValue] = useState('');
     const [dateValue, setDateValue] = useState('');
-    const [timeValue, setTimeValue] = useState('');
     const [isLoading, setIsLoading] = useState(true);
     const [showAlert, setShowAlert] = useState(false);
     const [alert, setAlert] = useState({ 'msg': '', 'type': '' })
+    const [tick, setTick] = useState(0);
+    const daysToAlert = 3;
 
-    const { token } = props;
-
-    function convertTZ(date, tzString) {
-        return new Date((typeof date === "string" ? new Date(date) : date).toLocaleString("en-US", { timeZone: tzString }));
-    }
+    const { token, setUpcoming } = props;
 
     const getTodos = async () => {
         let myHeaders = new Headers();
@@ -31,7 +28,6 @@ const Todo = (props) => {
         const response = await fetch('https://todo-api-kz.herokuapp.com/todo', requestOptions)
         const responseTodos = await response.json();
         setIsLoading(false)
-        console.log(responseTodos['todos'])
         setTodos(responseTodos['todos']);
     }
 
@@ -39,23 +35,13 @@ const Todo = (props) => {
         let myHeaders = new Headers()
         myHeaders.append('Content-Type', 'application/json');
         myHeaders.append('x-access-token', token);
-        let formattedDateValue = dateValue.split('-')
-        formattedDateValue = formattedDateValue[1] + '-' + formattedDateValue[2] + '-' + formattedDateValue[0];
-        let formattedDate = new Date(formattedDateValue);
-        console.log(formattedDate);
-        formattedDate = formattedDate.toDateString().slice(4, formattedDate.length);
-        let hour = parseInt(timeValue.slice(0, 2));
-        let minutes = timeValue.slice(3, 5);
-        let AMPM = 'AM'
-        if (hour > 12) {
-            hour = hour - 12;
-            AMPM = 'PM';
-        }
-        let formattedTime = hour + ':' + minutes + AMPM;
-        let formattedDateTime = formattedDate + '  ' + formattedTime;
+        let date = new Date(dateValue);
+        date.setDate(date.getDate() + 1)
+        date = date.toDateString().split(' ');
+        let formattedDate = date[1] + ' ' + date[2] + ' ' + date[3] + '   12:00AM';
         let raw = JSON.stringify({
             "text": formValue,
-            "due_date": formattedDateTime
+            "due_date": formattedDate
         });
 
         let requestOptions = {
@@ -134,18 +120,35 @@ const Todo = (props) => {
         if (!formValue) {
             setShowAlert(true);
             setAlert({ ...alert, 'msg': 'Error: Invalid Input', 'type': 'alert-danger' })
-        } else if (!dateValue || !timeValue) {
+        } else if (!dateValue) {
             setShowAlert(true);
-            setAlert({ ...alert, 'msg': 'Error: Invalid Date or Time', 'type': 'alert-danger' })
+            setAlert({ ...alert, 'msg': 'Error: Invalid Date', 'type': 'alert-danger' })
         } else {
             postTodos();
             setShowAlert(true);
             setAlert({ ...alert, 'msg': 'Added Todo', 'type': 'alert-success' })
             setFormValue('');
             setDateValue('');
-            setTimeValue('');
         }
 
+    }
+
+    const getUpcoming = () => {
+        setUpcoming([]);
+        let today = new Date();
+        for (let i = 0; i < todos.length; i++) {
+            if (!todos[i].complete) {
+                let todoDueDate = new Date(todos[i]['due_date']);
+                todoDueDate.setDate(todoDueDate.getDate() + 1);
+                let diffTime = (todoDueDate.getDate() - today.getDate());
+                if (diffTime <= daysToAlert) {
+                    setUpcoming((upcoming) => {
+                        return [...upcoming, { 'text': todos[i]['text'], 'diffDays': diffTime }]
+                    })
+                }
+            }
+
+        }
     }
 
     useEffect(() => {
@@ -162,6 +165,12 @@ const Todo = (props) => {
         getTodos();
     }, [])
 
+    useEffect(() => {
+        getUpcoming();
+        const interval = setInterval(() => setTick(tick + 1), 360000);
+        return () => clearInterval(interval);
+    }, [tick, todos])
+
     return <>
         <section className="section-center">
             <form action="" className="grocery-form" onSubmit={handleSubmit}>
@@ -170,15 +179,13 @@ const Todo = (props) => {
                 <div className="form-control">
                     <input type="text" className="grocery" placeholder="e.g. cry" value={formValue} onChange={(e) => setFormValue(e.target.value)} />
                     <input type="date" className="date-input center" name="date-form" id="date-form" value={dateValue} onChange={(e) => setDateValue(e.target.value)}></input>
-                    <input type="time" className="time-input center" value={timeValue} onChange={(e) => setTimeValue(e.target.value)}></input>
+                    <button className="submit-btn" type="submit">Add</button>
                 </div>
-                <div className="date-form-control">
-                    <button className="submit-btn" type="submit">Add Item</button>
-                </div>
-                <TodoList todos={todos} removeTodo={removeTodo} completeTodo={completeTodo} />
-                {todos && todos.filter((todo) => { return todo.complete != true }).length > 0 && <button className="clear-btn" onClick={handleRemoveAllTodos}>clear items</button>}
-                <ClipLoader color={"#1ad9d6"} loading={isLoading} css={"display: block; margin: 0 auto;"} />
             </form>
+            <TodoList todos={todos} removeTodo={removeTodo} completeTodo={completeTodo} />
+            {todos && todos.filter((todo) => { return todo.complete != true }).length > 0 && <button className="clear-btn" onClick={handleRemoveAllTodos}>clear items</button>}
+            <ClipLoader color={"#1ad9d6"} loading={isLoading} css={"display: block; margin: 0 auto;"} />
+
         </section>
     </>
 }

@@ -58,9 +58,12 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
     },
 }));
 
-export default function PrimarySearchAppBar({ logout, name }) {
+export default function PrimarySearchAppBar({ logout, name, upcoming }) {
     const [anchorEl, setAnchorEl] = React.useState(null);
     const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = React.useState(null);
+
+    const [notiAnchorEl, setNotiAnchorEl] = React.useState(null);
+    const isNotiMenuOpen = Boolean(notiAnchorEl);
 
     const isMenuOpen = Boolean(anchorEl);
     const isMobileMenuOpen = Boolean(mobileMoreAnchorEl);
@@ -68,6 +71,14 @@ export default function PrimarySearchAppBar({ logout, name }) {
     const handleProfileMenuOpen = (event) => {
         setAnchorEl(event.currentTarget);
     };
+
+    const handleNotiMenuOpen = (e) => {
+        setNotiAnchorEl(e.currentTarget);
+    }
+
+    const handleNotiMenuClose = () => {
+        setNotiAnchorEl(null);
+    }
 
     const handleMobileMenuClose = () => {
         setMobileMoreAnchorEl(null);
@@ -124,6 +135,48 @@ export default function PrimarySearchAppBar({ logout, name }) {
             <MenuItem onClick={handleLogout}>Logout</MenuItem>
         </Menu>
     );
+
+    const renderNotiMenu = (
+        <Menu
+            anchorEl={notiAnchorEl}
+            anchorOrigin={{
+                vertical: 'top',
+                horizontal: 'center'
+            }}
+            id="noti-menu"
+            keepMounted
+            transformorigin={{
+                vertical: 'top',
+                horizontal: 'center',
+            }}
+            open={isNotiMenuOpen}
+            onClose={handleNotiMenuClose}
+        >
+            {upcoming.length === 0 && <MenuItem onClick={handleNotiMenuClose}>No Upcoming Todos</MenuItem>}
+            {upcoming.map((upcomingItem) => {
+                let upcomingText = '';
+                let upcomingColor = '';
+                if (upcomingItem.diffDays < 0) {
+                    upcomingText = "overdue"
+                    upcomingColor = "red";
+                } else if (upcomingItem.diffDays === 0) {
+                    upcomingText = "today";
+                    upcomingColor = "orange"
+                } else if (upcomingItem.diffDays === 1) {
+                    upcomingText = "tommorow";
+                    upcomingColor = "yellow"
+                } else {
+                    upcomingText = upcomingItem.diffDays + ' days'
+                    upcomingColor = "green"
+                }
+                return <MenuItem onClick={handleNotiMenuClose} style={{ textTransform: 'capitalize' }}>{upcomingItem.text}:&nbsp;<span style={{ color: upcomingColor }}>{upcomingText}</span></MenuItem>
+            })}
+        </Menu>
+
+
+    )
+
+
 
     const mobileMenuId = 'primary-search-account-menu-mobile';
     const renderMobileMenu = (
@@ -215,11 +268,12 @@ export default function PrimarySearchAppBar({ logout, name }) {
                             </Badge>
                         </IconButton>
                         <IconButton
+                            onClick={handleNotiMenuOpen}
                             size="large"
                             aria-label="show 17 new notifications"
                             color="inherit"
                         >
-                            <Badge badgeContent={0} color="error">
+                            <Badge badgeContent={upcoming.length} color="error">
                                 <NotificationsIcon />
                             </Badge>
                         </IconButton>
@@ -256,6 +310,7 @@ export default function PrimarySearchAppBar({ logout, name }) {
             </AppBar>
             {renderMobileMenu}
             {renderMenu}
+            {renderNotiMenu}
         </Box>
     );
 }

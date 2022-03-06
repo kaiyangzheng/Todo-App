@@ -18,7 +18,7 @@ const TodoList = ({ todos, removeTodo, completeTodo }) => {
                         <button type="button" className="delete-btn" onClick={() => removeTodo(id)}><FaTrash /></button>
                     </div>
                     <break></break>
-                    {due_date}
+                    <div className="due-date">Due: {due_date.slice(0, due_date.length - 13)}</div>
                 </article>
             })}
         </div>
