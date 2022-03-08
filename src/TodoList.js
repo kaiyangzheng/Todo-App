@@ -9,8 +9,6 @@ const TodoList = ({ todos, removeTodo, completeTodo }) => {
                 if (complete) {
                     return;
                 }
-
-
                 return <article className="grocery-item" key={id}>
                     <p className="title">{text}</p>
                     <div className="btn-container">

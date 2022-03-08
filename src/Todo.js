@@ -5,15 +5,19 @@ import ClipLoader from "react-spinners/ClipLoader";
 
 const Todo = (props) => {
     const [todos, setTodos] = useState([]);
+    const [sortedTodos, setSortedTodos] = useState([]);
     const [formValue, setFormValue] = useState('');
     const [dateValue, setDateValue] = useState('');
     const [isLoading, setIsLoading] = useState(true);
     const [showAlert, setShowAlert] = useState(false);
     const [alert, setAlert] = useState({ 'msg': '', 'type': '' })
     const [tick, setTick] = useState(0);
+    const [isSorted, setIsSorted] = useState(false);
+    const [sortButtonText, setSortButtonText] = useState('Sort by due date');
     const daysToAlert = 3;
 
-    const { token, setUpcoming } = props;
+    const { token, setUpcoming, setIsLogin, setToken } = props;
+
 
     const getTodos = async () => {
         let myHeaders = new Headers();
@@ -27,6 +31,10 @@ const Todo = (props) => {
         setIsLoading(true);
         const response = await fetch('https://todo-api-kz.herokuapp.com/todo', requestOptions)
         const responseTodos = await response.json();
+        if (responseTodos['message'] === 'Token is invalid!') {
+            setToken('')
+            setIsLogin(true);
+        }
         setIsLoading(false)
         setTodos(responseTodos['todos']);
     }
@@ -141,6 +149,8 @@ const Todo = (props) => {
                 let todoDueDate = new Date(todos[i]['due_date']);
                 todoDueDate.setDate(todoDueDate.getDate() + 1);
                 let diffTime = (todoDueDate.getDate() - today.getDate());
+                let diffYears = (todoDueDate.getFullYear() - today.getFullYear());
+                diffTime += diffYears * 365;
                 if (diffTime <= daysToAlert) {
                     setUpcoming((upcoming) => {
                         return [...upcoming, { 'text': todos[i]['text'], 'diffDays': diffTime }]
@@ -171,6 +181,36 @@ const Todo = (props) => {
         return () => clearInterval(interval);
     }, [tick, todos])
 
+    useEffect(() => {
+        let sorted = [...todos].sort(function (a, b) {
+            return new Date(b.due_date) - new Date(a.due_date);
+        })
+        sorted = sorted.reverse();
+        setSortedTodos(sorted);
+    }, [todos])
+
+
+    useEffect(() => {
+        if (isSorted) {
+            setSortButtonText('Sort by time added');
+        } else {
+            setSortButtonText('Sort by due date');
+        }
+    }, [isSorted])
+
+
+
+    const handleSort = () => {
+        let sorted = [...todos].sort(function (a, b) {
+            return new Date(b.due_date) - new Date(a.due_date);
+        })
+        sorted = sorted.reverse();
+        setSortedTodos(sorted);
+        setIsSorted(!isSorted);
+    }
+
+
+
     return <>
         <section className="section-center">
             <form action="" className="grocery-form" onSubmit={handleSubmit}>
@@ -182,8 +222,10 @@ const Todo = (props) => {
                     <button className="submit-btn" type="submit">Add</button>
                 </div>
             </form>
-            <TodoList todos={todos} removeTodo={removeTodo} completeTodo={completeTodo} />
-            {todos && todos.filter((todo) => { return todo.complete != true }).length > 0 && <button className="clear-btn" onClick={handleRemoveAllTodos}>clear items</button>}
+            {todos && todos.filter((todo) => { return todo.complete !== true }).length > 1 && <button className="sort-btn" onClick={handleSort}>{sortButtonText}</button>}
+            {!isSorted && <TodoList todos={todos} removeTodo={removeTodo} completeTodo={completeTodo} />}
+            {isSorted && <TodoList todos={sortedTodos} removeTodo={removeTodo} completeTodo={completeTodo} />}
+            {todos && todos.filter((todo) => { return todo.complete !== true }).length > 0 && <button className="clear-btn" onClick={handleRemoveAllTodos}>clear items</button>}
             <ClipLoader color={"#1ad9d6"} loading={isLoading} css={"display: block; margin: 0 auto;"} />
 
         </section>

@@ -491,3 +491,26 @@ break{
   color: var(--clr-grey-6);
   font-size: 0.8rem;
 }
+
+.sort-btn {
+  background: var(--clr-primary-8);
+  border-color: transparent;
+  flex: 0 0 5rem;
+  display: grid;
+  align-items: center;
+  padding: 0.25rem 1.5rem;
+  text-transform: capitalize;
+  letter-spacing: 2 px;
+  cursor: pointer;
+  content: var(--clr-primary-5);
+  transition: var(--transition);
+  font-size: 0.85rem;
+  margin: 0 auto;
+  margin-top: 1rem;
+}
+
+.sort-btn:hover {
+  background: var(--clr-primary-5);
+  color: var(--clr-white);
+}
+

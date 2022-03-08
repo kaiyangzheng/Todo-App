@@ -164,7 +164,7 @@ export default function PrimarySearchAppBar({ logout, name, upcoming }) {
                     upcomingColor = "orange"
                 } else if (upcomingItem.diffDays === 1) {
                     upcomingText = "tommorow";
-                    upcomingColor = "yellow"
+                    upcomingColor = "purple"
                 } else {
                     upcomingText = upcomingItem.diffDays + ' days'
                     upcomingColor = "green"
