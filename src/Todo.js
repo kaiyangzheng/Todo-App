@@ -13,7 +13,7 @@ const Todo = (props) => {
     const [alert, setAlert] = useState({ 'msg': '', 'type': '' })
     const [tick, setTick] = useState(0);
     const [isSorted, setIsSorted] = useState(false);
-    const [sortButtonText, setSortButtonText] = useState('Sort by due date');
+    const [sortButtonTxt, setSortButtonTxt] = useState('Sort by due date');
     const daysToAlert = 3;
 
     const { token, setUpcoming, setIsLogin, setToken } = props;
@@ -31,10 +31,6 @@ const Todo = (props) => {
         setIsLoading(true);
         const response = await fetch('https://todo-api-kz.herokuapp.com/todo', requestOptions)
         const responseTodos = await response.json();
-        if (responseTodos['message'] === 'Token is invalid!') {
-            setToken('')
-            setIsLogin(true);
-        }
         setIsLoading(false)
         setTodos(responseTodos['todos']);
     }
@@ -144,16 +140,17 @@ const Todo = (props) => {
     const getUpcoming = () => {
         setUpcoming([]);
         let today = new Date();
+        today.setHours(0, 0, 0, 0);
         for (let i = 0; i < todos.length; i++) {
             if (!todos[i].complete) {
-                let todoDueDate = new Date(todos[i]['due_date']);
-                todoDueDate.setDate(todoDueDate.getDate() + 1);
-                let diffTime = (todoDueDate.getDate() - today.getDate());
-                let diffYears = (todoDueDate.getFullYear() - today.getFullYear());
-                diffTime += diffYears * 365;
-                if (diffTime <= daysToAlert) {
+                let dueDate = new Date(todos[i]['due_date'])
+                console.log(today);
+                let diffTime = (dueDate - today);
+                let diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                console.log(diffDays);
+                if (diffDays <= daysToAlert) {
                     setUpcoming((upcoming) => {
-                        return [...upcoming, { 'text': todos[i]['text'], 'diffDays': diffTime }]
+                        return [...upcoming, { 'text': todos[i]['text'], 'diffDays': diffDays }]
                     })
                 }
             }
@@ -192,9 +189,9 @@ const Todo = (props) => {
 
     useEffect(() => {
         if (isSorted) {
-            setSortButtonText('Sort by time added');
+            setSortButtonTxt('Sort by time added');
         } else {
-            setSortButtonText('Sort by due date');
+            setSortButtonTxt('Sort by due date');
         }
     }, [isSorted])
 
@@ -222,10 +219,10 @@ const Todo = (props) => {
                     <button className="submit-btn" type="submit">Add</button>
                 </div>
             </form>
-            {todos && todos.filter((todo) => { return todo.complete !== true }).length > 1 && <button className="sort-btn" onClick={handleSort}>{sortButtonText}</button>}
+            {todos && todos.filter((todo) => { return todo.complete != true }).length > 1 && <button className="sort-btn" onClick={handleSort}>{sortButtonTxt}</button>}
             {!isSorted && <TodoList todos={todos} removeTodo={removeTodo} completeTodo={completeTodo} />}
             {isSorted && <TodoList todos={sortedTodos} removeTodo={removeTodo} completeTodo={completeTodo} />}
-            {todos && todos.filter((todo) => { return todo.complete !== true }).length > 0 && <button className="clear-btn" onClick={handleRemoveAllTodos}>clear items</button>}
+            {todos && todos.filter((todo) => { return todo.complete != true }).length > 0 && <button className="clear-btn" onClick={handleRemoveAllTodos}>clear items</button>}
             <ClipLoader color={"#1ad9d6"} loading={isLoading} css={"display: block; margin: 0 auto;"} />
 
         </section>

@@ -34,7 +34,7 @@ function App() {
     {token && <NavBar logout={logout} name={name} upcoming={upcoming}></NavBar>}
     {!token && isLogin && <Login setToken={setToken} setName={setName} setIsLogin={setIsLogin} />}
     {!token && !isLogin && <Register setToken={setToken} setIsLogin={setIsLogin} setName={setName} />}
-    {token && <Todo token={token} setUpcoming={setUpcoming} setIsLogin={setIsLogin} setToken={setToken}/>}
+    {token && <Todo token={token} setUpcoming={setUpcoming} setIsLogin={setIsLogin} setToken={setToken} />}
   </>
 }
 export default App;

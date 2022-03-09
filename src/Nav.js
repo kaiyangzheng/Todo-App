@@ -203,13 +203,13 @@ export default function PrimarySearchAppBar({ logout, name, upcoming }) {
                 </IconButton>
                 <p>Messages</p>
             </MenuItem>
-            <MenuItem>
+            <MenuItem onClick={handleNotiMenuOpen}>
                 <IconButton
                     size="large"
                     aria-label="show 17 new notifications"
                     color="inherit"
                 >
-                    <Badge badgeContent={0} color="error">
+                    <Badge badgeContent={upcoming.length} color="error">
                         <NotificationsIcon />
                     </Badge>
                 </IconButton>
